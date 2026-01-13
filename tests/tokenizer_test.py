@@ -1,4 +1,4 @@
-from compiler.tokenizer import tokenize
+from compiler.tokenizer import tokenize, Token, L
 
 def test_tokenizer_basics() -> None:
     assert tokenize("if  3\nwhile") == ['if', '3', 'while']
