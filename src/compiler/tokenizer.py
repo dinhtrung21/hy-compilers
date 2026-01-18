@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from itertools import groupby
 import re
 from typing import Any, List
 
