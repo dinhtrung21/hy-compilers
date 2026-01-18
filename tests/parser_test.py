@@ -26,3 +26,49 @@ def test_parser_task1() -> None:
             right=ast.Identifier(name="c")
         )
     )
+
+def test_parser_task2() -> None:
+    tokens1 = tokenize('if a then b + c else x * y')
+    tokens2 = tokenize('if a then b + c')
+    tokens3 = tokenize('1 + if true then 2 else 3')
+    tokens4 = tokenize('if a then if b then c else d')
+    assert parse(tokens1) == ast.Conditional(
+        cond_=ast.Identifier(name="a"),
+        then_=ast.BinaryOp(
+            left=ast.Identifier(name="b"),
+            op="+",
+            right=ast.Identifier(name="c")
+        ),
+        else_=ast.BinaryOp(
+            left=ast.Identifier(name="x"),
+            op="*",
+            right=ast.Identifier(name="y")
+        )
+    )
+    assert parse(tokens2) == ast.Conditional(
+        cond_=ast.Identifier(name="a"),
+        then_=ast.BinaryOp(
+            left=ast.Identifier(name="b"),
+            op="+",
+            right=ast.Identifier(name="c")
+        ),
+        else_=None
+    )
+    assert parse(tokens3) == ast.BinaryOp(
+        left=ast.Literal(value=1),
+        op="+",
+        right=ast.Conditional(
+            cond_=ast.Identifier(name="true"),
+            then_=ast.Literal(value=2),
+            else_=ast.Literal(value=3)
+        )
+    )
+    assert parse(tokens4) == ast.Conditional(
+        cond_=ast.Identifier(name="a"),
+        then_=ast.Conditional(
+            cond_=ast.Identifier(name="b"),
+            then_=ast.Identifier(name="c"),
+            else_=ast.Identifier(name="d"),
+        ),
+        else_=None
+    )
