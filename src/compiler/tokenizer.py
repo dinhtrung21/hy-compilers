@@ -15,15 +15,15 @@ L = Location(row=-1, column=-1)
 
 @dataclass
 class Token:
-    def __init__(self, loc: Location, type: str, text: str):
-        self.loc = loc
+    def __init__(self, location: Location, type: str, text: str):
+        self.location = location
         self.type = type
         self.text = text
         
     def __eq__(self, other: Any) -> bool:
         # Return true if self or the argument is L
         if isinstance(other, Token):
-            return self.loc == L or other.loc == L
+            return self.location == L or other.location == L
         return False
 
 
@@ -82,9 +82,9 @@ def tokenize(source_code: str) -> list[Token]:
             continue
         
         # Find the match and create the token
-        loc = Location(row=row, column=column)
+        location = Location(row=row, column=column)
         type, text, end = find_type(source_code, pos)
-        token = Token(loc=loc, type=type, text=text)
+        token = Token(location=location, type=type, text=text)
         tokens.append(token)
         pos = end
     
