@@ -25,3 +25,8 @@ class Conditional(Expression):
     cond_: Expression
     then_: Expression
     else_: Expression | None
+
+@dataclass
+class Function(Expression):
+    name: Expression
+    args: list[Expression]
