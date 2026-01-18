@@ -69,7 +69,7 @@ def tokenize(source_code: str) -> list[Token]:
             column += match.end() - pos
             pos = match.end()
             continue
-        # Skip one-line comments
+        # Skip comments
         match = regexes["COMMENT"].match(source_code, pos)
         if match is not None:
             pos = match.end()
