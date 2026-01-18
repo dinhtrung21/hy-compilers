@@ -12,14 +12,16 @@ def parse(tokens: list[Token]) -> ast.Expression:
     # This way we don't have to worry about going past
     # the end elsewhere.
     def peek() -> Token:
-        if pos < len(tokens):
-            return tokens[pos]
-        else:
-            return Token(
-                location=tokens[-1].location,
-                type="end",
-                text="",
-            )
+        if len(tokens) > 0:
+            if pos < len(tokens):
+                return tokens[pos]
+            else:
+                return Token(
+                    location=tokens[-1].location,
+                    type="end",
+                    text="",
+                )
+        raise IndexError(f'The list of tokens has no entry.')
     
     
     # 'consume()' returns the token at 'pos'
@@ -34,10 +36,12 @@ def parse(tokens: list[Token]) -> ast.Expression:
                         # without creating a local variable of the same name.
         token = peek()
         if isinstance(expected, str) and token.text != expected:
-            raise Exception(f'{token.location}: expected "{expected}"')
+            raise Exception((f'Row {token.location.row}, column {token.location.column}: '\
+                            f'expected "{expected}" instead of "{token.text}".'))
         if isinstance(expected, list) and token.text not in expected:
             comma_separated = ", ".join([f'"{e}"' for e in expected])
-            raise Exception(f'{token.location}: expected one of: {comma_separated}')
+            raise Exception((f'Row {token.location.row}, column {token.location.column}: '\
+                            f'expected one of: {comma_separated} instead of "{token.text}".'))
         pos += 1
         return token
     
@@ -45,15 +49,17 @@ def parse(tokens: list[Token]) -> ast.Expression:
     # This is the parsing function for integer literals.
     def parse_int_literal() -> ast.Literal:
         if peek().type != 'int_literal':
-            raise Exception(f'{peek().location}: expected an integer literal')
+            raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
+                            f'expected an integer literal instead of "{peek().text}".'))
         token = consume()
         return ast.Literal(int(token.text))
     
     
     # This is the parsing function for identifiers.
-    def parse_identifier() -> ast.Identifier
+    def parse_identifier() -> ast.Identifier:
         if peek().type != 'identifier':
-            raise Exception(f'{peek().location}: expected an identifier')
+            raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
+                            f'expected an identifier instead of "{peek().text}".'))
         token = consume()
         return ast.Identifier(token.text)
     
@@ -70,7 +76,10 @@ def parse(tokens: list[Token]) -> ast.Expression:
                 operator,
                 right
             )
-        return left
+        if peek().type != "identifier" and peek().text != '(':
+            return left
+        raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
+                        f'expected an operator instead of "{peek().text}".'))
     
     
     def parse_term() -> ast.Expression:
@@ -97,7 +106,8 @@ def parse(tokens: list[Token]) -> ast.Expression:
         elif peek().type == 'identifier':
             return parse_identifier()
         else:
-            raise Exception(f'{peek().location}: expected "(", an integer literal or an identifier')
+            raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
+                            f'expected "(", an integer literal or an identifier instead of "{peek().text}".'))
     
     
     def parse_parenthesized() -> ast.Expression:
