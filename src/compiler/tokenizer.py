@@ -10,7 +10,7 @@ class Location:
         self.column = column
 
 # Special location for ease of testing
-L = Location(row=-1, column=-1)
+L = Location(row=0, column=-1)
 
 
 @dataclass
@@ -56,7 +56,7 @@ def find_type(source_code: str, pos: int) -> tuple[str, str, int]:
 # *** Build the tokenizer of the compiler ***
 def tokenize(source_code: str) -> list[Token]:
     # Counters for location
-    pos = 0; row = 0; column = 0
+    pos = 0; row = 1; column = 0
     # List for storing tokens
     tokens: List[Token] = []
     
