@@ -76,7 +76,8 @@ def parse(tokens: list[Token]) -> ast.Expression:
                 operator,
                 right
             )
-        if peek().type != "identifier" and peek().text != '(':
+        if (peek().type != "identifier" and peek().text != '(') \
+        or peek().text in ['if', 'then', 'else']:
             return left
         raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
                         f'expected an operator instead of "{peek().text}".'))
@@ -101,6 +102,8 @@ def parse(tokens: list[Token]) -> ast.Expression:
     def parse_factor() -> ast.Expression:
         if peek().text == '(':
             return parse_parenthesized()
+        elif peek().text == 'if':
+            return parse_conditional()
         elif peek().type == 'int_literal':
             return parse_int_literal()
         elif peek().type == 'identifier':
@@ -116,6 +119,19 @@ def parse(tokens: list[Token]) -> ast.Expression:
         # to parse whatever is inside the parentheses.
         expr = parse_expression()
         consume(')')
+        return expr
+    
+    def parse_conditional() -> ast.Expression:
+        consume('if')
+        cond_ = parse_expression()
+        consume('then')
+        then_ = parse_expression()
+        else_ = None
+        if peek().text == 'else':
+            consume('else')
+            else_ = parse_expression()
+        
+        expr = ast.Conditional(cond_=cond_, then_=then_, else_=else_)
         return expr
     
     
