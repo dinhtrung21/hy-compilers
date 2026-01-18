@@ -35,7 +35,7 @@ regexes = {
     "operator": re.compile(r'==|!=|<=|>=|\+|\-|\*|/|%|=|<|>'),
     "punctuation": re.compile(r'[(){},;:]'),
     "BLANK": re.compile(r'[ \t]+'),
-    "COMMENT": re.compile(r'#.*|//.*'),
+    "COMMENT": re.compile(r'#.*|//.*|(/\*).*?(\*/)'),
     "ENDLINE": re.compile(r'\n')
 }
 
@@ -72,7 +72,6 @@ def tokenize(source_code: str) -> list[Token]:
         # Skip one-line comments
         match = regexes["COMMENT"].match(source_code, pos)
         if match is not None:
-            column += match.end() - pos
             pos = match.end()
             continue
         # Skip end of lines
