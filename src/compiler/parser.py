@@ -1,3 +1,4 @@
+from typing import List
 from compiler.tokenizer import Token
 import compiler.ast as ast
 
@@ -76,8 +77,7 @@ def parse(tokens: list[Token]) -> ast.Expression:
                 operator,
                 right
             )
-        if (peek().type != "identifier" and peek().text != '(') \
-        or peek().text in ['if', 'then', 'else']:
+        if peek().type != "identifier" or peek().text in ['if', 'then', 'else']:
             return left
         raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
                         f'expected an operator instead of "{peek().text}".'))
@@ -107,7 +107,11 @@ def parse(tokens: list[Token]) -> ast.Expression:
         elif peek().type == 'int_literal':
             return parse_int_literal()
         elif peek().type == 'identifier':
-            return parse_identifier()
+            # Check if this is an identifier or a function
+            if pos + 1 < len(tokens) and tokens[pos + 1].text == '(':
+                return parse_function()
+            else:
+                return parse_identifier()
         else:
             raise Exception((f'Row {peek().location.row}, column {peek().location.column}: '\
                             f'expected "(", an integer literal or an identifier instead of "{peek().text}".'))
@@ -121,6 +125,7 @@ def parse(tokens: list[Token]) -> ast.Expression:
         consume(')')
         return expr
     
+    
     def parse_conditional() -> ast.Expression:
         consume('if')
         cond_ = parse_expression()
@@ -132,6 +137,20 @@ def parse(tokens: list[Token]) -> ast.Expression:
             else_ = parse_expression()
         
         expr = ast.Conditional(cond_=cond_, then_=then_, else_=else_)
+        return expr
+    
+    
+    def parse_function() -> ast.Expression:
+        name = parse_identifier()
+        args: List[ast.Expression] = []
+        consume('(')
+        args.append(parse_expression())
+        while peek().text in [',']:
+            consume(',')
+            args.append(parse_expression())
+        consume(')')
+        
+        expr = ast.Function(name=name, args=args)
         return expr
     
     
