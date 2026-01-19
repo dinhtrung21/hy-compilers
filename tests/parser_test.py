@@ -27,6 +27,7 @@ def test_parser_task1() -> None:
         )
     )
 
+
 def test_parser_task2() -> None:
     tokens1 = tokenize('if a then b + c else x * y')
     tokens2 = tokenize('if a then b + c')
@@ -71,4 +72,27 @@ def test_parser_task2() -> None:
             else_=ast.Identifier(name="d"),
         ),
         else_=None
+    )
+
+
+def test_parser_task3() -> None:
+    tokens = tokenize('1 + f(x, (y + z) * 3)')
+    assert parse(tokens) == ast.BinaryOp(
+        left=ast.Literal(value=1),
+        op="+",
+        right=ast.Function(
+            name=ast.Identifier(name="f"),
+            args=[
+                ast.Identifier(name="x"),
+                ast.BinaryOp(
+                    left=ast.BinaryOp(
+                        left=ast.Identifier(name="y"),
+                        op="+",
+                        right=ast.Identifier(name="z")
+                    ),
+                    op="*",
+                    right=ast.Literal(value=3)
+                )
+            ]
+        )
     )
